@@ -1,0 +1,43 @@
+body {
+    background-image: url('fondo.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+.card {
+    background-color: rgba(255, 255, 255, 0.9);
+}
+
+.modal-body p {
+    font-size: 16px;
+}
+
+.d-flex {
+    height: 100vh;
+}
+
+.text-center h3, .text-center p {
+    color: white; 
+    font-weight: bold; 
+    font-size: 24px; 
+    margin: 0;
+}
+
+
+.btn-primary {
+    background-color: #d3d3d3; 
+    border: none; 
+    color: black; 
+    font-size: 18px; 
+    padding: 12px 24px; 
+    border-radius: 25px; 
+    transition: background-color 0.3s ease, transform 0.2s; 
+}
+
+
+.btn-primary:hover {
+    background-color: #b0b0b0; 
+    transform: scale(1.05); 
+}
