@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatbot Interactivo - PuntoNet</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+      margin: 0;
+      padding: 0;
+    }
+
+    .chat-container {
+      max-width: 400px;
+      position: fixed;
+      bottom: 80px;
+      right: 20px;
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+    }
+
+    .chat-header {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .message {
+      margin: 10px 0;
+    }
+
+    .bot-message {
+      background-color: #e0e0e0;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: left;
+    }
+
+    .user-message {
+      background-color: #4caf50;
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: right;
+    }
+
+    .option-button {
+      margin: 5px 0;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      background-color: #3b82f6;
+      color: white;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    .option-button:hover {
+      background-color: #2563eb;
+    }
+
+    .chat-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 30px;
+      cursor: pointer;
+      box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+      z-index: 1000;
+    }
+
+    .chat-button:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+<div class="chat-container" id="chat-container" aria-hidden="true">
+  <div class="chat-header">Chatbot PuntoNet</div>
+  <div id="messages" class="messages">
+    <div class="message bot-message">👋 ¡Hola! Bienvenido a PuntoNet. ¿En qué podemos ayudarte?</div>
+  </div>
+</div>
+
+<button class="chat-button" id="chat-button" aria-label="Abrir chatbot">💬</button>
+
+<script>
+  const chatContainer = document.getElementById('chat-container');
+  const chatButton = document.getElementById('chat-button');
+
+  let previousMenu = null;
+
+  // Mostrar/Ocultar el chatbot
+  chatButton.addEventListener('click', () => {
+    const isHidden = chatContainer.style.display === 'none' || chatContainer.style.display === '';
+    chatContainer.style.display = isHidden ? 'flex' : 'none';
+    chatContainer.setAttribute('aria-hidden', !isHidden);
+    if (isHidden) {
+      displayMainMenu();
+    }
+  });
+
+  // Función para mostrar mensajes
+  function displayMessage(text, className = 'bot-message') {
+    const message = document.createElement('div');
+    message.className = `message ${className}`;
+    message.textContent = text;
+    document.getElementById('messages').appendChild(message);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+  }
+
+  // Función para mostrar el menú principal con botones
+  function displayMainMenu() {
+    clearButtons();
+    const menuOptions = [
+      { label: "Ventas", action: showSalesMenu },
+      { label: "Servicio Técnico", action: showServiceMenu },
+      { label: "Agendar citas", action: scheduleAppointment }
+    ];
+
+    menuOptions.forEach(option => {
+      const button = document.createElement("button");
+      button.textContent = option.label;
+      button.className = "option-button";
+      button.onclick = option.action;
+      document.getElementById("messages").appendChild(button);
+    });
+
+    // Botón para contactar por WhatsApp
+    const whatsappButton = document.createElement("button");
+    whatsappButton.textContent = "Contactar por WhatsApp";
+    whatsappButton.className = "option-button";
+    whatsappButton.onclick = redirectToWhatsApp;
+    document.getElementById("messages").appendChild(whatsappButton);
+  }
+
+  // Función para limpiar botones
+  function clearButtons() {
+    const buttons = document.querySelectorAll(".option-button");
+    buttons.forEach(button => button.remove());
+  }
+
+  // Función para mostrar el submenú de Ventas
+  function showSalesMenu() {
+    displayMessage("Has seleccionado: Ventas");
+    previousMenu = displayMainMenu;  // Guardamos el menú anterior
+    clearButtons();
+
+    const salesOptions = [
+      { label: "Laptops", response: "¿En qué modelo estás interesado?", pdf: "laptop.pdf" },
+      { label: "Impresoras", response: "¿Te gustaría conocer nuestras ofertas de impresoras?", pdf: "impresora.pdf" },
+      { label: "Accesorios", response: "¿Qué tipo de accesorio necesitas?", pdf: "accesorio.pdf" }
+    ];
+
+    salesOptions.forEach(option => {
+      const button = document.createElement("button");
+      button.textContent = option.label;
+      button.className = "option-button";
+      button.onclick = () => {
+        displayMessage(option.response);
+        addPdfDownloadLink(option.pdf);
+      };
+      document.getElementById("messages").appendChild(button);
+    });
+  }
+
+  // Función para mostrar el submenú de Servicio Técnico
+  function showServiceMenu() {
+    displayMessage("Has seleccionado: Servicio Técnico");
+    previousMenu = displayMainMenu;  // Guardamos el menú anterior
+    clearButtons();
+
+    const serviceOptions = [
+      { label: "Laptops", response: "¿Cuál es el problema con tu laptop?" },
+      { label: "Impresoras", response: "¿Qué problema tiene tu impresora?" },
+      { label: "CPU", response: "¿En qué podemos ayudarte con tu CPU?" }
+    ];
+
+    serviceOptions.forEach(option => {
+      const button = document.createElement("button");
+      button.textContent = option.label;
+      button.className = "option-button";
+      button.onclick = () => displayMessage(option.response);
+      document.getElementById("messages").appendChild(button);
+    });
+  }
+
+  // Función para agendar una cita
+  function scheduleAppointment() {
+    displayMessage("Para agendar una cita, indícanos el día y hora que prefieres.");
+  }
+
+  // Función para redirigir a WhatsApp
+  function redirectToWhatsApp() {
+    const phoneNumber = '908688611'; 
+    const url = `https://wa.me/${phoneNumber}?text=Hola, necesito más información.`;
+    window.open(url, '_blank');
+  }
+
+  // Función para agregar el enlace de descarga del PDF
+  function addPdfDownloadLink(pdfFile) {
+    const link = document.createElement('a');
+    link.href = pdfFile;
+    link.textContent = "Descargar PDF";
+    link.className = "option-button";
+    link.target = "_blank";
+    document.getElementById('messages').appendChild(link);
+  }
+</script>
+</body>
+</html>
